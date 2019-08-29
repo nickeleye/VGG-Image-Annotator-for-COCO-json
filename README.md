@@ -16,7 +16,7 @@ VGG created this tool to be used with their VIA formatted object detection annot
 ___
 
 <p align="center">
-  I<b>mport Annotation File</b> 
+  I<b>mport Annotation File</b>
     <br><br>
 </p>
 
