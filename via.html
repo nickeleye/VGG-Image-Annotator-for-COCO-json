@@ -537,13 +537,13 @@
           <li class="dropdown"><a title="Annotations" class="drop_menu_item">Annotation &#9662;</a>
             <div class="dropdown-content">
               <a onclick="show_annotation_data()" title="View annotations">View annotations</a>
-              <a onclick="download_all_region_data('csv')" title="Save image region annotations as a CSV(comma separated value) file">Save as CSV</a>
-              <a onclick="download_all_region_data('json')" title="Save image region annotations as a JSON(Javascript Object Notation) file">Save as JSON</a>
-              <a onclick="download_all_region_data('coco')" title="Save image region annotations as a JSON(Javascript Object Notation) file">Save as COCO</a>
+              <a onclick="download_all_region_data('csv')" title="Save image region annotations as a CSV(comma separated value) file">Save as VIA-CSV</a>
+              <a onclick="download_all_region_data('json')" title="Save image region annotations as a JSON(Javascript Object Notation) file">Save as VIA-JSON</a>
+              <a onclick="download_all_region_data('coco')" title="Save image region annotations as a JSON(Javascript Object Notation) file">Save as COCO-JSON</a>
               <a onclick="sel_local_data_file('coco_infer')" title="Import existing region data from CSV or JSON file">Import COCO Results</a>
               <a onclick="sel_local_data_file('coco_ann')" title="Import existing region data from CSV or JSON file">Import COCO Instances</a>
                 <a onclick="sel_local_data_file('coco_poly')" title="Import existing region data from CSV or JSON file">Import COCO as Polygons</a>
-              <a onclick="sel_local_data_file('annotations')" title="Import existing region data from CSV or JSON file">Import</a>
+              <a onclick="sel_local_data_file('annotations')" title="Import existing region data from CSV or JSON file">Import VIA</a>
             </div>
           </li>
           <li class="dropdown"><a title="View" class="drop_menu_item">View &#9662;</a>
@@ -1244,20 +1244,6 @@ function import_region_attributes_from_csv(data) {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function import_annotations_from_file(event) {
   var selected_files = event.target.files;
   for ( var i = 0; i < selected_files.length; ++i ) {
@@ -1488,16 +1474,6 @@ function import_annotations_from_csv(data) {
   save_current_data_to_browser_cache();
 }
 
-
-
-
-
-
-
-
-
-
-
 function import_cocoized_inference_from_json(data) {
   if (data === '' || typeof(data) === 'undefined') {
     return;
@@ -1509,76 +1485,67 @@ function import_cocoized_inference_from_json(data) {
   var input_image_id = 0;
   var stored_image_id = -1;
 
+  if (d.hasOwnProperty('annotations')) {
+    for ( var j = 0; j < d.annotations.length; j++ ) {
+      input_image_id = d.annotations[j].image_id;
 
-  //BigO of n^2, not ideal !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      for ( var key in _via_img_metadata ) {
+        stored_image_id = _via_img_metadata[key].coco_id;
 
-  for ( var j = 0; j < d.length; j++ ) {
-    input_image_id = d[j].image_id;
+        if (input_image_id === stored_image_id) {
 
-    for ( var key in _via_img_metadata ) {
-      stored_image_id = _via_img_metadata[key].coco_id;
-      //_via_region_attributes['category_id'] = true;
-      if (input_image_id === stored_image_id) {
-        var region_i = new ImageRegion();
-        region_i.shape_attributes['name'] = 'rect';
-        region_i.shape_attributes['x'] = d[j].bbox[0];
-        region_i.shape_attributes['y'] = d[j].bbox[1];
-        region_i.shape_attributes['width'] = d[j].bbox[2];
-        region_i.shape_attributes['height'] = d[j].bbox[3];
-        region_i.infer = true;
-        _coco_max_annotation_id += 1;
-        region_i.id = _coco_max_annotation_id;
+          var region_i = new ImageRegion();
+          region_i.shape_attributes['name'] = 'rect';
+          region_i.shape_attributes['x'] = d.annotations[j].bbox[0];
+          region_i.shape_attributes['y'] = d.annotations[j].bbox[1];
+          region_i.shape_attributes['width'] = d.annotations[j].bbox[2];
+          region_i.shape_attributes['height'] = d.annotations[j].bbox[3];
+          region_i.infer = true;
+          _coco_max_annotation_id += 1;
+          region_i.id = _coco_max_annotation_id;
 
-        if (!_via_region_attributes.hasOwnProperty('category_id')) {
-          _via_region_attributes['category_id'] = true;
-        }
-        region_i.region_attributes['category_id'] = d[j].category_id.toString();
-
-        var prev_bbox = [];
-        var iou = 0;
-        var count = 0;
-        var sorted_reg_id = [];
-        for ( var i = 0; i < _via_img_metadata[key].regions.length; i++ ) {
-          prev_bbox = [ _via_img_metadata[key].regions[i].shape_attributes['x'],
-                        _via_img_metadata[key].regions[i].shape_attributes['y'],
-                        _via_img_metadata[key].regions[i].shape_attributes['width'],
-                        _via_img_metadata[key].regions[i].shape_attributes['height'] ];
-
-          iou = bb_intersection_over_union(d[j].bbox, prev_bbox);
-          //automatic filtering when including inferences
-          //any inference that is similar to an annotation, assume
-          //inference is better on average than an annotation.
-          //This assumption is dependent on the AP and robustness of the model
-          //that produced the predictions.
-          if (iou > 0.3 & iou < 1.0) {
-            sorted_reg_id.push(i);
+          if (!_via_region_attributes.hasOwnProperty('category_id')) {
+            _via_region_attributes['category_id'] = true;
           }
-          iou = 0;
+          region_i.region_attributes['category_id'] = d.annotations[j].category_id.toString();
 
+          _via_img_metadata[key].regions.push(region_i);
+          region_import_count += 1;
         }
-        sorted_reg_id.sort( function(a,b) {
-          return (b-a);
-        });
-        for(var k = 0; k < sorted_reg_id.length; k++) {
-          _via_img_metadata[key].regions.splice(sorted_reg_id[i], 1);
-          _via_canvas_regions.splice(sorted_reg_id[i], 1);
-          count += 1;
+      }
+    }
+  } else {
+
+    for ( var j = 0; j < d.length; j++ ) {
+      input_image_id = d[j].image_id;
+
+      for ( var key in _via_img_metadata ) {
+        stored_image_id = _via_img_metadata[key].coco_id;
+
+        if (input_image_id === stored_image_id) {
+          var region_i = new ImageRegion();
+          region_i.shape_attributes['name'] = 'rect';
+          region_i.shape_attributes['x'] = d[j].bbox[0];
+          region_i.shape_attributes['y'] = d[j].bbox[1];
+          region_i.shape_attributes['width'] = d[j].bbox[2];
+          region_i.shape_attributes['height'] = d[j].bbox[3];
+          region_i.infer = true;
+          _coco_max_annotation_id += 1;
+          region_i.id = _coco_max_annotation_id;
+
+          if (!_via_region_attributes.hasOwnProperty('category_id')) {
+            _via_region_attributes['category_id'] = true;
+          }
+          region_i.region_attributes['category_id'] = d[j].category_id.toString();
+
+          _via_img_metadata[key].regions.push(region_i);
+          region_import_count += 1;
         }
-
-
-        _via_img_metadata[key].regions.push(region_i);
-        region_import_count += 1;
       }
     }
   }
-  /*
-  show_message(count);
-  _via_redraw_reg_canvas();
-  _via_reg_canvas.focus();
-  update_attributes_panel();
-  save_current_data_to_browser_cache();
-  //show_message('Import Summary : [' + region_import_count + '] regions');
-  */
+
+  show_message('Import Summary : [' + region_import_count + '] regions');
   _via_reload_img_fn_list_table = true;
   show_image(_via_image_index);
 }
@@ -1606,10 +1573,6 @@ function bb_intersection_over_union(boxA, boxB) {
   var iou = interArea / (boxAArea + boxBArea - interArea);
   return iou;
 }
-
-
-
-
 
 
 function import_cocoized_annotations_from_json(data) {
@@ -1659,9 +1622,6 @@ function import_cocoized_annotations_from_json(data) {
     }
   }
   show_message('Import Summary : [' + region_import_count + '] regions');
-  //for (var key in _via_region_attributes){
-  //  show_message(key);
-  //}
 
   _via_reload_img_fn_list_table = true;
   show_image(_via_image_index);

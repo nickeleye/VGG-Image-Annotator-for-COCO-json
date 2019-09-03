@@ -1,0 +1,108 @@
+{
+  "images": [
+    {
+      "file_name": "b1.jpg",
+      "height": 300,
+      "id": 15,
+      "width": 300
+    },
+    {
+      "file_name": "b2.jpg",
+      "height": 654,
+      "id": 1,
+      "width": 654
+    },
+    {
+      "file_name": "b3.jpeg",
+      "height": 500,
+      "id": 2,
+      "width": 877
+    },
+    {
+      "file_name": "b4.jpg",
+      "height": 800,
+      "id": 3,
+      "width": 531
+    },
+    {
+      "file_name": "b5.jpg",
+      "height": 800,
+      "id": 4,
+      "width": 531
+    },
+    {
+      "file_name": "b6.jpg",
+      "height": 600,
+      "id": 5,
+      "width": 400
+    },
+    {
+      "file_name": "b7.jpg",
+      "height": 360,
+      "id": 6,
+      "width": 640
+    },
+    {
+      "file_name": "b8.jpg",
+      "height": 485,
+      "id": 7,
+      "width": 728
+    },
+    {
+      "file_name": "b9.jpg",
+      "height": 986,
+      "id": 8,
+      "width": 1200
+    },
+    {
+      "file_name": "b10.jpeg",
+      "height": 1631,
+      "id": 9,
+      "width": 1213
+    },
+    {
+      "file_name": "b11.jpg",
+      "height": 830,
+      "id": 10,
+      "width": 640
+    },
+    {
+      "file_name": "b12.jpg",
+      "height": 683,
+      "id": 11,
+      "width": 1024
+    },
+    {
+      "file_name": "b13.jpg",
+      "height": 728,
+      "id": 12,
+      "width": 1091
+    },
+    {
+      "file_name": "b14.jpg",
+      "height": 667,
+      "id": 13,
+      "width": 1001
+    },
+    {
+      "file_name": "b15.jpeg",
+      "height": 275,
+      "id": 14,
+      "width": 183
+    }
+  ],
+  "categories": [
+    {
+      "supercategory": "floatable",
+      "id": 1,
+      "name": "ballon"
+    },
+        {
+      "supercategory": "non-floatable",
+      "id": 2,
+      "name": "brick"
+    }
+  ],
+  "annotations": [
+  ]
+}
