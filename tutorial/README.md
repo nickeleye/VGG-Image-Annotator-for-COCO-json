@@ -1,10 +1,9 @@
 
-# Common Objects in Context [format](http://http://cocodataset.org/#format-data)
+# Common Objects in Context [format](http://cocodataset.org/#format-data)
 
 * annotations/empty_ballons.json has image list and category list. Can add annotations with VIA.
 * annotations/bbox_ballons.json has annotations and can train with it.
 * Corresponding images are in image folder.
-
 
 
 
