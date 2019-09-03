@@ -7,7 +7,7 @@
 
 
 
-# Example of COCO data format
+# Example of COCO data format for Object Detection
 
 
 ![load](coco_data_format.png)
